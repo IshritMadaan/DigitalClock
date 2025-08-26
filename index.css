@@ -1,0 +1,227 @@
+:root {
+  --bg-color: #f0f2f5;
+  --text-color: #333;
+  --digit-bg: #ffffff;
+  --digit-shadow: rgba(0, 0, 0, 0.08);
+  --separator-color: #999;
+  --date-color: #555;
+  --accent-color: #007aff;
+  --settings-bg: rgba(255, 255, 255, 0.9);
+  --switch-bg: #ccc;
+  --switch-knob: #fff;
+  font-size: 16px;
+}
+
+body.dark {
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --digit-bg: #1e1e1e;
+  --digit-shadow: rgba(0, 0, 0, 0.4);
+  --separator-color: #666;
+  --date-color: #aaa;
+  --accent-color: #0af;
+  --settings-bg: rgba(30, 30, 30, 0.9);
+  --switch-bg: #444;
+  --switch-knob: #222;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  text-align: center;
+  padding: 20px;
+}
+
+.clock-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.digit-group,
+.separator-group,
+.ampm-group {
+  display: flex;
+  align-items: center;
+}
+
+.digit-container {
+  width: 0.7em;
+  height: 1.1em;
+  overflow: hidden;
+  background-color: var(--digit-bg);
+  border-radius: 0.1em;
+  box-shadow: 0 0.05em 0.2em var(--digit-shadow);
+  margin: 0 0.05em;
+  font-weight: 500;
+}
+
+.digit-roller {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.digit {
+  width: 100%;
+  height: 1.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.separator {
+  font-size: 0.8em;
+  font-weight: 300;
+  margin: 0 0.1em;
+  color: var(--separator-color);
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.ampm-container {
+  font-size: 0.2em;
+  font-weight: 600;
+  padding: 0.5em 0.8em;
+  background-color: var(--digit-bg);
+  border-radius: 0.1em;
+  box-shadow: 0 0.05em 0.2em var(--digit-shadow);
+  margin-left: 0.2em;
+  letter-spacing: 0.1em;
+}
+
+.main-clock {
+  font-size: clamp(80px, 18vh, 220px);
+}
+
+.date-display {
+  font-size: clamp(16px, 3vh, 28px);
+  color: var(--date-color);
+  font-weight: 300;
+}
+
+/* Settings Panel */
+.controls {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.settings-btn {
+  background: var(--settings-bg);
+  backdrop-filter: blur(5px);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+.settings-btn:hover {
+  transform: scale(1.1) rotate(30deg);
+}
+
+.settings-panel {
+  background: var(--settings-bg);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transform-origin: bottom right;
+  transform: scale(0);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.settings-panel.active {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.setting {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 220px;
+  font-size: 1rem;
+}
+
+/* Custom toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+.switch input {
+  display: none;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--switch-bg);
+  transition: 0.4s;
+  border-radius: 28px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: var(--switch-knob);
+  transition: 0.4s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: var(--accent-color);
+}
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
