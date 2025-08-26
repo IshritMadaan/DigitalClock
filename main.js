@@ -7,21 +7,17 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const digitElements = {
-    h1: document.querySelector("#hours .digit-container:nth-child(1)"),
-    h2: document.querySelector("#hours .digit-container:nth-child(2)"),
-    m1: document.querySelector("#minutes .digit-container:nth-child(1)"),
-    m2: document.querySelector("#minutes .digit-container:nth-child(2)"),
-    s1: document.querySelector("#seconds .digit-container:nth-child(1)"),
-    s2: document.querySelector("#seconds .digit-container:nth-child(2)"),
+    h: document.querySelectorAll("#hours .digit-container"),
+    m: document.querySelectorAll("#minutes .digit-container"),
+    s: document.querySelectorAll("#seconds .digit-container"),
   };
 
   const ampmEl = document.querySelector("#ampm .ampm-container");
   const dateEl = document.getElementById("date-display");
-  let digitHeight = 0;
+  const docEl = document.documentElement;
 
   function createDigitRollers() {
-    const containers = document.querySelectorAll(".digit-container");
-    containers.forEach((container) => {
+    document.querySelectorAll(".digit-container").forEach((container) => {
       const roller = document.createElement("div");
       roller.className = "digit-roller";
       for (let i = 0; i < 10; i++) {
@@ -32,58 +28,52 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       container.appendChild(roller);
     });
-    // Calculate digitHeight after they are in the DOM
-    setTimeout(() => {
-      const firstDigit = document.querySelector(".digit");
-      if (firstDigit) digitHeight = firstDigit.clientHeight;
-    }, 0);
   }
 
-  function setDigit(element, value) {
-    if (!element || digitHeight === 0) return;
-    const roller = element.querySelector(".digit-roller");
-    roller.style.transform = `translateY(-${value * digitHeight}px)`;
+  function setDigit(elements, value) {
+    const s = String(value).padStart(2, "0");
+    const v1 = s[0];
+    const v2 = s[1];
+    if (elements[0])
+      elements[0].querySelector(
+        ".digit-roller"
+      ).style.transform = `translateY(-${v1 * 1.1}em)`;
+    if (elements[1])
+      elements[1].querySelector(
+        ".digit-roller"
+      ).style.transform = `translateY(-${v2 * 1.1}em)`;
   }
 
   function updateClock() {
     const now = new Date();
-
     let hours = now.getHours();
     const minutes = now.getMinutes();
     const seconds = now.getSeconds();
 
-    const ampm = hours >= 12 ? "PM" : "AM";
     if (!state.is24Hour) {
-      hours = hours % 12;
-      hours = hours ? hours : 12; // the hour '0' should be '12'
-      ampmEl.textContent = ampm;
+      ampmEl.textContent = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12 || 12;
     }
 
-    setDigit(digitElements.h1, Math.floor(hours / 10));
-    setDigit(digitElements.h2, hours % 10);
-    setDigit(digitElements.m1, Math.floor(minutes / 10));
-    setDigit(digitElements.m2, minutes % 10);
-
+    setDigit(digitElements.h, hours);
+    setDigit(digitElements.m, minutes);
     if (state.showSeconds) {
-      setDigit(digitElements.s1, Math.floor(seconds / 10));
-      setDigit(digitElements.s2, seconds % 10);
+      setDigit(digitElements.s, seconds);
     }
 
-    // Update date only if it has changed
     const currentDateString = now.toDateString();
     if (currentDateString !== state.lastDateString) {
-      const options = {
+      dateEl.textContent = now.toLocaleDateString(undefined, {
         weekday: "long",
         year: "numeric",
         month: "long",
         day: "numeric",
-      };
-      dateEl.textContent = now.toLocaleDateString(undefined, options);
+      });
       state.lastDateString = currentDateString;
     }
   }
 
-  function toggleUIState() {
+  function applyUIState() {
     document.getElementById("seconds").style.display = state.showSeconds
       ? "flex"
       : "none";
@@ -92,15 +82,15 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("ampm").style.display = state.is24Hour
       ? "none"
       : "flex";
-    document.body.classList.toggle("dark", state.isDark);
+    docEl.classList.toggle("dark", state.isDark);
   }
 
   // --- Settings Panel ---
   const settingsBtn = document.getElementById("settings-btn");
   const settingsPanel = document.getElementById("settings-panel");
-  settingsBtn.addEventListener("click", () => {
-    settingsPanel.classList.toggle("active");
-  });
+  settingsBtn.addEventListener("click", () =>
+    settingsPanel.classList.toggle("active")
+  );
   document.addEventListener("click", (e) => {
     if (!settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
       settingsPanel.classList.remove("active");
@@ -110,64 +100,43 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Toggles ---
   document.getElementById("theme-toggle").addEventListener("change", (e) => {
     state.isDark = e.target.checked;
-    toggleUIState();
+    applyUIState();
   });
-
   document.getElementById("format-toggle").addEventListener("change", (e) => {
     state.is24Hour = e.target.checked;
-    toggleUIState();
+    applyUIState();
     updateClock();
   });
-
   document.getElementById("seconds-toggle").addEventListener("change", (e) => {
     state.showSeconds = e.target.checked;
-    toggleUIState();
+    applyUIState();
   });
-
   document
     .getElementById("fullscreen-toggle")
     .addEventListener("change", (e) => {
-      if (e.target.checked) {
-        if (document.documentElement.requestFullscreen) {
-          document.documentElement.requestFullscreen();
-        } else if (document.documentElement.webkitRequestFullscreen) {
-          /* Safari */
-          document.documentElement.webkitRequestFullscreen();
-        }
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        (docEl.requestFullscreen || docEl.webkitRequestFullscreen).call(docEl);
       } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          /* Safari */
-          document.webkitExitFullscreen();
-        }
+        (document.exitFullscreen || document.webkitExitFullscreen).call(
+          document
+        );
       }
     });
-
-  document.addEventListener("fullscreenchange", () => {
-    document.getElementById("fullscreen-toggle").checked =
-      !!document.fullscreenElement;
-  });
-  document.addEventListener("webkitfullscreenchange", () => {
-    // Safari
-    document.getElementById("fullscreen-toggle").checked =
-      !!document.webkitFullscreenElement;
-  });
+  ["fullscreenchange", "webkitfullscreenchange"].forEach((evt) =>
+    document.addEventListener(evt, () => {
+      document.getElementById("fullscreen-toggle").checked = !!(
+        document.fullscreenElement || document.webkitFullscreenElement
+      );
+    })
+  );
 
   function init() {
-    // Set initial theme based on system preference
-    if (
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    ) {
-      state.isDark = true;
-    } else {
-      state.isDark = false;
-    }
+    state.isDark =
+      window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? true;
     document.getElementById("theme-toggle").checked = state.isDark;
 
     createDigitRollers();
-    toggleUIState();
+    applyUIState();
     updateClock();
     setInterval(updateClock, 1000);
   }
