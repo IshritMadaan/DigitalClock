@@ -46,28 +46,32 @@ body {
 }
 
 .app-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100vw;
+  display: grid;
+  place-content: center;
+  place-items: center;
   height: 100vh;
   text-align: center;
+  gap: 1rem;
+  padding: 0 1rem;
 }
 
 .clock-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
-  font-size: 18vmin;
+  width: 100%;
+  font-size: clamp(1px, 15vw, 180px);
 }
 
-.digit-group,
-.separator-group,
-.ampm-group {
+.digit-group {
+  display: contents;
+}
+
+.clock-elements {
+  grid-column: 2;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .digit-container,
@@ -120,7 +124,7 @@ body {
 }
 
 .date-display {
-  font-size: clamp(1rem, 3vmin, 1.75rem);
+  font-size: clamp(0.8rem, 4vw, 1.75rem);
   color: var(--date-color);
   font-weight: 300;
   padding: 0 1rem;
