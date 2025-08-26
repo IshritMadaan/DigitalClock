@@ -2,46 +2,45 @@ document.addEventListener("DOMContentLoaded", () => {
   const state = {
     is24Hour: false,
     showSeconds: true,
-    isDark: true,
+    isDark: window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? true,
     lastDateString: "",
   };
 
-  const digitElements = {
-    h: document.querySelectorAll("#hours .digit-container"),
-    m: document.querySelectorAll("#minutes .digit-container"),
-    s: document.querySelectorAll("#seconds .digit-container"),
+  const D = document;
+  const docEl = D.documentElement;
+  const ELS = {
+    h: D.querySelectorAll("#hours .digit-container"),
+    m: D.querySelectorAll("#minutes .digit-container"),
+    s: D.querySelectorAll("#seconds .digit-container"),
+    ampm: D.querySelector("#ampm .ampm-container"),
+    date: D.getElementById("date-display"),
+    seconds: D.getElementById("seconds"),
+    secondsSeparator: D.getElementById("seconds-separator"),
+    ampmContainer: D.getElementById("ampm"),
+    settingsBtn: D.getElementById("settings-btn"),
+    settingsPanel: D.getElementById("settings-panel"),
   };
 
-  const ampmEl = document.querySelector("#ampm .ampm-container");
-  const dateEl = document.getElementById("date-display");
-  const docEl = document.documentElement;
-
   function createDigitRollers() {
-    document.querySelectorAll(".digit-container").forEach((container) => {
-      const roller = document.createElement("div");
+    D.querySelectorAll(".digit-container").forEach((container) => {
+      const roller = D.createElement("div");
       roller.className = "digit-roller";
-      for (let i = 0; i < 10; i++) {
-        const digit = document.createElement("div");
-        digit.className = "digit";
-        digit.textContent = i;
-        roller.appendChild(digit);
-      }
+      roller.innerHTML = Array.from(
+        { length: 10 },
+        (_, i) => `<div class="digit">${i}</div>`
+      ).join("");
       container.appendChild(roller);
     });
   }
 
   function setDigit(elements, value) {
     const s = String(value).padStart(2, "0");
-    const v1 = s[0];
-    const v2 = s[1];
-    if (elements[0])
-      elements[0].querySelector(
-        ".digit-roller"
-      ).style.transform = `translateY(-${v1 * 1.1}em)`;
-    if (elements[1])
-      elements[1].querySelector(
-        ".digit-roller"
-      ).style.transform = `translateY(-${v2 * 1.1}em)`;
+    elements[0].firstElementChild.style.transform = `translateY(-${
+      s[0] * 1.1
+    }em)`;
+    elements[1].firstElementChild.style.transform = `translateY(-${
+      s[1] * 1.1
+    }em)`;
   }
 
   function updateClock() {
@@ -51,19 +50,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const seconds = now.getSeconds();
 
     if (!state.is24Hour) {
-      ampmEl.textContent = hours >= 12 ? "PM" : "AM";
+      ELS.ampm.textContent = hours >= 12 ? "PM" : "AM";
       hours = hours % 12 || 12;
     }
 
-    setDigit(digitElements.h, hours);
-    setDigit(digitElements.m, minutes);
+    setDigit(ELS.h, hours);
+    setDigit(ELS.m, minutes);
     if (state.showSeconds) {
-      setDigit(digitElements.s, seconds);
+      setDigit(ELS.s, seconds);
     }
 
     const currentDateString = now.toDateString();
     if (currentDateString !== state.lastDateString) {
-      dateEl.textContent = now.toLocaleDateString(undefined, {
+      ELS.date.textContent = now.toLocaleDateString(undefined, {
         weekday: "long",
         year: "numeric",
         month: "long",
@@ -74,72 +73,63 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function applyUIState() {
-    document.getElementById("seconds").style.display = state.showSeconds
-      ? "flex"
-      : "none";
-    document.getElementById("seconds-separator").style.display =
-      state.showSeconds ? "flex" : "none";
-    document.getElementById("ampm").style.display = state.is24Hour
-      ? "none"
-      : "flex";
+    ELS.seconds.style.display = state.showSeconds ? "contents" : "none";
+    ELS.secondsSeparator.style.display = state.showSeconds ? "block" : "none";
+    ELS.ampmContainer.style.display = state.is24Hour ? "none" : "flex";
     docEl.classList.toggle("dark", state.isDark);
   }
 
-  // --- Settings Panel ---
-  const settingsBtn = document.getElementById("settings-btn");
-  const settingsPanel = document.getElementById("settings-panel");
-  settingsBtn.addEventListener("click", () =>
-    settingsPanel.classList.toggle("active")
+  // --- Event Listeners ---
+  ELS.settingsBtn.addEventListener("click", () =>
+    ELS.settingsPanel.classList.toggle("active")
   );
-  document.addEventListener("click", (e) => {
-    if (!settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
-      settingsPanel.classList.remove("active");
+
+  D.addEventListener("click", (e) => {
+    if (
+      !ELS.settingsPanel.contains(e.target) &&
+      !ELS.settingsBtn.contains(e.target)
+    ) {
+      ELS.settingsPanel.classList.remove("active");
     }
   });
 
-  // --- Toggles ---
-  document.getElementById("theme-toggle").addEventListener("change", (e) => {
-    state.isDark = e.target.checked;
+  ELS.settingsPanel.addEventListener("change", (e) => {
+    if (e.target.type !== "checkbox") return;
+    const { id, checked } = e.target;
+    switch (id) {
+      case "theme-toggle":
+        state.isDark = checked;
+        break;
+      case "format-toggle":
+        state.is24Hour = checked;
+        updateClock();
+        break;
+      case "seconds-toggle":
+        state.showSeconds = checked;
+        break;
+      case "fullscreen-toggle":
+        if (!D.fullscreenElement) {
+          docEl.requestFullscreen().catch(() => (e.target.checked = false));
+        } else {
+          D.exitFullscreen();
+        }
+        return; // Avoid applyUIState for fullscreen
+    }
     applyUIState();
   });
-  document.getElementById("format-toggle").addEventListener("change", (e) => {
-    state.is24Hour = e.target.checked;
-    applyUIState();
-    updateClock();
-  });
-  document.getElementById("seconds-toggle").addEventListener("change", (e) => {
-    state.showSeconds = e.target.checked;
-    applyUIState();
-  });
-  document
-    .getElementById("fullscreen-toggle")
-    .addEventListener("change", (e) => {
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        (docEl.requestFullscreen || docEl.webkitRequestFullscreen).call(docEl);
-      } else {
-        (document.exitFullscreen || document.webkitExitFullscreen).call(
-          document
-        );
-      }
-    });
+
   ["fullscreenchange", "webkitfullscreenchange"].forEach((evt) =>
-    document.addEventListener(evt, () => {
-      document.getElementById("fullscreen-toggle").checked = !!(
-        document.fullscreenElement || document.webkitFullscreenElement
-      );
-    })
+    D.addEventListener(
+      evt,
+      () =>
+        (D.getElementById("fullscreen-toggle").checked = !!D.fullscreenElement)
+    )
   );
 
-  function init() {
-    state.isDark =
-      window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? true;
-    document.getElementById("theme-toggle").checked = state.isDark;
-
-    createDigitRollers();
-    applyUIState();
-    updateClock();
-    setInterval(updateClock, 1000);
-  }
-
-  init();
+  // --- Init ---
+  D.getElementById("theme-toggle").checked = state.isDark;
+  createDigitRollers();
+  applyUIState();
+  updateClock();
+  setInterval(updateClock, 1000);
 });
