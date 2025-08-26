@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital Clock</title>
+    <link rel="stylesheet" href="index.css" />
+    <script src="main.js" defer></script>
+  </head>
+  <body class="dark">
+    <div class="app-container">
+      <div class="clock-wrapper main-clock">
+        <div class="digit-group" id="hours">
+          <div class="digit-container"></div>
+          <div class="digit-container"></div>
+        </div>
+        <div class="separator-group">
+          <div class="separator">:</div>
+        </div>
+        <div class="digit-group" id="minutes">
+          <div class="digit-container"></div>
+          <div class="digit-container"></div>
+        </div>
+        <div class="separator-group" id="seconds-separator">
+          <div class="separator">:</div>
+        </div>
+        <div class="digit-group" id="seconds">
+          <div class="digit-container"></div>
+          <div class="digit-container"></div>
+        </div>
+        <div class="ampm-group" id="ampm">
+          <div class="ampm-container">--</div>
+        </div>
+      </div>
+      <div class="date-display" id="date-display"></div>
+    </div>
+
+    <div class="controls">
+      <div class="settings-panel" id="settings-panel">
+        <div class="setting">
+          <span>Dark Mode</span>
+          <label class="switch">
+            <input type="checkbox" id="theme-toggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting">
+          <span>24-Hour Format</span>
+          <label class="switch">
+            <input type="checkbox" id="format-toggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting">
+          <span>Show Seconds</span>
+          <label class="switch">
+            <input type="checkbox" id="seconds-toggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting">
+          <span>Fullscreen</span>
+          <label class="switch">
+            <input type="checkbox" id="fullscreen-toggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      <button class="settings-btn" id="settings-btn">⚙️</button>
+    </div>
+  </body>
+</html>
