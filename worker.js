@@ -8,6 +8,7 @@ const ASSETS_TO_CACHE = [
   "/public/android-chrome-192x192.png",
   "/public/android-chrome-512x512.png",
   "/public/favicon.ico",
+  "/public/ss1.png",
 ];
 
 self.addEventListener("install", (event) => {
