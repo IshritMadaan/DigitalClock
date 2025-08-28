@@ -65,5 +65,20 @@
       </div>
       <button class="settings-btn" id="settings-btn">⚙️</button>
     </div>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/worker.js")
+            .then((registration) =>
+              console.log("ServiceWorker registration successful")
+            )
+            .catch((err) =>
+              console.log("ServiceWorker registration failed:", err)
+            );
+        });
+      }
+    </script>
   </body>
 </html>
