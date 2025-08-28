@@ -2,8 +2,8 @@ const CACHE_NAME = "digital-clock-v1";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
-  "/style.css",
-  "/script.js",
+  "/index.css",
+  "/main.js",
   "/manifest.json",
   "/public/android-chrome-192x192.png",
   "/public/android-chrome-512x512.png",
