@@ -5,6 +5,7 @@ Live Link: [im-digitalclock.netlify.app](https://im-digitalclock.netlify.app/)
 ## Features
 
 - Real-time digital clock display
+- Offline Supported PWA App
 - Shows current time in Hours:Minutes:Seconds format
 - 12-hour time format with AM/PM indicator
 - Updates automatically every second
